@@ -1,0 +1,19 @@
+<template>
+    <lightning-card title={plant.Name}>
+        <lightning-icon size="x-small" if:true={isDry} icon-name="utility:water" slot="actions" variant="error">
+        </lightning-icon>
+        <lightning-icon size="x-small" if:false={isDry} icon-name="utility:water" slot="actions" variant="success">
+        </lightning-icon>
+        <lightning-icon size="x-small" if:true={isReady} icon-name="utility:success" slot="actions" variant="success">
+        </lightning-icon>
+        <div onclick={handleSelection} class="slds-text-align_center">
+            <!-- <p>Name: </p> -->
+            <img style="width:100px;height:100px;object-fit: cover;border-radius: 50% " src={plant.VarietyPicture__c} />
+            <p>Status: {plant.State__c}</p>
+            <p>Line: {plant.Line__r.Name}</p>
+            <p>Variety: {plant.Variety__c}</p>
+            <p>Height: {plant.Height__c} cm</p>
+        </div>
+    </lightning-card>
+
+</template>

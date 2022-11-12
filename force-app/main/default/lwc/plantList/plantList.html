@@ -1,0 +1,175 @@
+<template>
+    <div class="slds-grid slds-gutters slds-wrap">
+        <lightning-card
+            class="slds-col slds-p-around_small slds-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_3-of-12"
+            title="Filters" icon-name="action:filter">
+            <div class="slds-p-around_large">
+
+                <lightning-button class="slds-align_absolute-center" label="Reset Filters" onclick={handleFilterReset}>
+                </lightning-button>
+
+                <lightning-slider label="Min height" value={filterMinHeight} min="0" max={filterMaxHeight}
+                    onchange={handleFilterSetup}>
+                </lightning-slider>
+                <lightning-slider label="Max height" value={filterMaxHeight} min={filterMinHeight} max="30"
+                    onchange={handleFilterSetup}>
+                </lightning-slider>
+
+                <lightning-dual-listbox data-id="dual" size="3" name="varieties" label="Varieties" options={varietyList}
+                    onchange={handleFilterSetup}></lightning-dual-listbox>
+
+                <lightning-dual-listbox data-id="dual" size="3" name="state" label="State" options={stateList}
+                    onchange={handleFilterSetup}>
+                </lightning-dual-listbox>
+
+
+            </div>
+        </lightning-card>
+
+        <lightning-card
+            class="slds-col slds-p-around_small slds-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_6-of-12"
+            title="List of Plants" icon-name="action:dial_in">
+
+            <div class="slds-text-align_center slds-align_absolute-center slds-m-around_large">
+                <lightning-button icon-name="utility:new" label="New Plant" onclick={handleCreateItem}
+                    variant="success">
+                </lightning-button>
+
+            </div>
+
+            <div class="slds-grid slds-gutters slds-wrap">
+                <template for:each={plants} for:item="plant">
+                    <div class="slds-col slds-size--1-of-2 slds-small-size--1-of-2 slds-medium-size--1-of-2 slds-large-size--1-of-3"
+                        key={plant.Id}>
+                        <div class="slds-box slds-box_x-small slds-text-align_center slds-m-around--x-small">
+                            <c-plant-item onselect={handleSelection} plant={plant}>
+                            </c-plant-item>
+                        </div>
+
+                    </div>
+                </template>
+            </div>
+        </lightning-card>
+
+        <lightning-card if:true={isSelected}
+            class="slds-col slds-p-around_small slds-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_3-of-12"
+            title="Plant Item" icon-name="action:record">
+
+            <!-- ACTION BUTTONS -->
+
+            <lightning-button-icon if:true={isView} onclick={handleEditItem} icon-name="action:edit" slot="actions">
+            </lightning-button-icon>
+            <lightning-button-icon if:true={isEdit} onclick={handleCloseEditItem} icon-name="action:preview"
+                slot="actions">
+            </lightning-button-icon>
+            <lightning-button-icon if:true={isView} onclick={handleDeleteItem} icon-name="action:delete" slot="actions">
+            </lightning-button-icon>
+            &nbsp;
+            <lightning-button-icon if:true={isView} onclick={handleCloneItem} icon-name="action:clone" slot="actions">
+            </lightning-button-icon>
+            &nbsp;
+            <lightning-button-icon onclick={handleCloseItem} icon-name="action:close" slot="actions">
+            </lightning-button-icon>
+
+            <div class="slds-p-around_small">
+
+                <template if:true={isView}>
+
+                    <span class="slds-text-align_center slds-align_absolute-center slds-m-around_small">
+                        <p class="slds-text-title_caps">{selectedPlant.Name}, {selectedPlantAge} days <lightning-icon
+                                size="x-small" if:true={isReady} icon-name="utility:success" slot="actions"
+                                variant="success"></lightning-icon>
+                        </p>
+                    </span>
+                    <div class="slds-text-align_center slds-align_absolute-center slds-m-around_small">
+                        <figure class="sign slds-m-around_small" style="color:gray">
+                            <p><img style="width: 100px" src={selectedPlant.VarietyPicture__c} /></p>
+                            <figcaption>{selectedPlant.Variety__c}</figcaption>
+                        </figure>
+                    </div>
+                    <div>
+                        <lightning-record-view-form object-api-name={objectplant} record-id={selectedPlant.Id}>
+                            <div class="slds-grid slds-wrap">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-output-field field-name={fieldState}></lightning-output-field>
+                                    <lightning-output-field field-name={fieldLine}></lightning-output-field>
+
+                                </div>
+
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-output-field field-name={fieldHeight}></lightning-output-field>
+                                    <lightning-output-field field-name={fieldVarietyRipening}></lightning-output-field>
+
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-output-field field-name={fieldHarvest}></lightning-output-field>
+                                </div>
+                                <div class="slds-col slds-size_1-of-1">
+                                    <lightning-output-field field-name={fieldWateringDate}></lightning-output-field>
+                                    <lightning-output-field field-name={fieldPlantingDate}></lightning-output-field>
+
+                                </div>
+
+
+                            </div>
+                        </lightning-record-view-form>
+
+                        <div class="slds-text-align_center slds-align_absolute-center slds-m-around_small">
+                            <lightning-button style="width:150px" if:true={isDry} icon-name="utility:water"
+                                label="Water the Plant" onclick={handleWatering} variant="destructive">
+                            </lightning-button>
+                            <lightning-button style="width:150px" if:false={isDry} disabled="true"
+                                icon-name="utility:water" label="Water the Plant"></lightning-button>
+                        </div>
+                        <template if:true={isReady}>
+
+                            <template if:false={isHarvest}>
+                                <div class="slds-text-align_center slds-align_absolute-center slds-m-around_small">
+                                    <lightning-button style="width:150px" icon-name="utility:bucket" label="Harvest"
+                                        onclick={handleHarvest} variant="success"></lightning-button>
+                                </div>
+                            </template>
+
+                            <template if:true={isHarvest}>
+                                <lightning-record-edit-form object-api-name={objectplant} record-id={selectedPlant.Id}
+                                    onsuccess={handleHarvestSuccess}>
+                                    <lightning-messages></lightning-messages>
+                                    <lightning-input-field field-name={fieldHarvest}></lightning-input-field>
+                                    <div class="slds-text-align_center slds-align_absolute-center slds-m-around_small">
+                                        <lightning-button type="submit" variant="brand" label="Harvest">
+                                        </lightning-button>
+                                    </div>
+                                </lightning-record-edit-form>
+                            </template>
+
+                        </template>
+
+                    </div>
+                </template>
+                <template if:true={isEdit}>
+                    <div class="slds-p-around_small">
+                        <lightning-record-form object-api-name={objectplant} record-id={selectedPlant.Id}
+                            fields={myFields} onsuccess={handleEditItemSuccess}>
+                        </lightning-record-form>
+                    </div>
+                </template>
+
+            </div>
+        </lightning-card>
+
+        <lightning-card if:true={isNew}
+            class="slds-col slds-p-around_small slds-size_1-of-1 slds-medium-size_1-of-1 slds-large-size_3-of-12"
+            title="New Plant" icon-name="action:record">
+
+            <lightning-button-icon onclick={handleCloseItem} icon-name="action:close" slot="actions">
+            </lightning-button-icon>
+
+            <div class="slds-p-around_small">
+                <lightning-record-form object-api-name={objectplant} fields={myFields}
+                    onsuccess={handleCreateItemSuccess}>
+                </lightning-record-form>
+
+            </div>
+        </lightning-card>
+    </div>
+</template>
