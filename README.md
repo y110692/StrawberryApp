@@ -17,3 +17,5 @@ Demo GIF is below. **App features**:
 - Remove record action button.
 - Clone record action button.
 - Edit record action button.
+
+![](StrawberryApp_Demo.mp4)
