@@ -18,4 +18,4 @@ Demo GIF is below. **App features**:
 - Clone record action button.
 - Edit record action button.
 
-![](StrawberryApp_Demo.mp4)
+![Demo](https://user-images.githubusercontent.com/116291167/201484523-83c1ee5a-0199-4f35-bf77-d5db857e854f.mp4)
